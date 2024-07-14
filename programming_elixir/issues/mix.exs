@@ -23,7 +23,9 @@ defmodule Issues.MixProject do
   defp deps do
     [
       {:httpoison, "~> 1.0.0"},
-      {:poison, "~> 3.1"}
+      {:poison, "~> 3.1"},
+      {:ex_doc, "~> 0.18.1"},
+      {:earmark, "~> 1.2.4"}
     ]
   end
 
