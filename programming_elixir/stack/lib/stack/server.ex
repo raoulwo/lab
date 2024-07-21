@@ -1,8 +1,8 @@
 defmodule Stack.Server do
   use GenServer
 
-  def start_link(stack) do
-    GenServer.start_link(__MODULE__, stack, name: __MODULE__, debug: [:trace, :statistics])
+  def start_link(_) do
+    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
   def pop do
@@ -13,8 +13,8 @@ defmodule Stack.Server do
     GenServer.cast(__MODULE__, {:push, value})
   end
 
-  def init(stack) do
-    {:ok, stack}
+  def init(_) do
+    {:ok, Stack.Stash.get()}
   end
 
   def handle_call(:pop, _from, [head | tail]) do
@@ -25,7 +25,7 @@ defmodule Stack.Server do
     {:noreply, [value | stack]}
   end
 
-  def terminate(reason, state) do
-    IO.puts("TERMINATED -> REASON: #{inspect(reason)}, STATE: #{inspect(state)}")
+  def terminate(_reason, current_stack) do
+    Stack.Stash.update(current_stack)
   end
 end
