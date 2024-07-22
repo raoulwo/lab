@@ -15,7 +15,10 @@ defmodule SuperSequence.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {SuperSequence.Application, []}
+      mod: {SuperSequence.Application, 456},
+      registered: [
+        SuperSequence.Server
+      ]
     ]
   end
 

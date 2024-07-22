@@ -6,9 +6,9 @@ defmodule SuperSequence.Application do
   use Application
 
   @impl true
-  def start(_type, _args) do
+  def start(_type, initial_number) do
     children = [
-      {SuperSequence.Stash, 123},
+      {SuperSequence.Stash, initial_number},
       {SuperSequence.Server, nil}
     ]
 
