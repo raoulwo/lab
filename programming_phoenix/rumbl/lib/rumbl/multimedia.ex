@@ -8,6 +8,7 @@ defmodule Rumbl.Multimedia do
   alias Rumbl.Accounts
   alias Rumbl.Multimedia.Video
   alias Rumbl.Multimedia.Category
+  alias Rumbl.Multimedia.Annotation
 
   @doc """
   Returns the list of videos.
@@ -128,5 +129,21 @@ defmodule Rumbl.Multimedia do
     Category
     |> Category.alphabetical()
     |> Repo.all()
+  end
+
+  def annotate_video(%Accounts.User{id: user_id}, video_id, attrs) do
+    %Annotation{video_id: video_id, user_id: user_id}
+    |> Annotation.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def list_annotations(%Video{} = video, since_id \\ 0) do
+    Repo.all(
+      from annotation in Ecto.assoc(video, :annotations),
+        where: annotation.id > ^since_id,
+        order_by: [asc: annotation.at, asc: annotation.id],
+        limit: 500,
+        preload: [:user]
+    )
   end
 end
