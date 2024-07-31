@@ -1,32 +1,57 @@
+use image::png::PNGEncoder;
+use image::ColorType;
+use num::Complex;
 use std::env;
 use std::fs::File;
-use num::Complex;
 use std::str::FromStr;
-use image::ColorType;
-use image::png::PNGEncoder;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() != 5 {
         eprintln!("Usage: {} FILE PIXELS UPPER_LEFT LOWER_RIGHT", args[0]);
-        eprintln!("Example: {} mandel.png 1000x750 -1.20,0.35 -1,0.20", args[0]);
+        eprintln!(
+            "Example: {} mandel.png 1000x750 -1.20,0.35 -1,0.20",
+            args[0]
+        );
         std::process::exit(1);
     }
 
-    let resolution = parse_pair(&args[2], 'x')
-        .expect("error parsing image dimensions");
-    let upper_left = parse_complex(&args[3])
-        .expect("error parsing upper left bound");
-    let lower_right = parse_complex(&args[4])
-        .expect("error parsing lower right bound");
+    let resolution = parse_pair(&args[2], 'x').expect("error parsing image dimensions");
+    let upper_left = parse_complex(&args[3]).expect("error parsing upper left bound");
+    let lower_right = parse_complex(&args[4]).expect("error parsing lower right bound");
 
     let mut pixels = vec![0; resolution.0 * resolution.1];
 
-    render(&mut pixels, resolution, upper_left, lower_right);
+    let threads = 8;
+    let rows_per_band = resolution.1 / threads + 1;
 
-    write_image(&args[1], &pixels, resolution)
-        .expect("error writing png file");
+    {
+        let bands: Vec<&mut [u8]> = pixels.chunks_mut(rows_per_band * resolution.0).collect();
+
+        crossbeam::scope(|spawner| {
+            for (i, band) in bands.into_iter().enumerate() {
+                let top = rows_per_band * i;
+                let height = band.len() / resolution.0;
+                let band_bounds = (resolution.0, height);
+                let band_upper_left =
+                    pixel_to_complex(resolution, (0, top), upper_left, lower_right);
+                let band_lower_right = pixel_to_complex(
+                    resolution,
+                    (resolution.0, top + height),
+                    upper_left,
+                    lower_right,
+                );
+
+                spawner.spawn(move |_| {
+                    render(band, band_bounds, band_upper_left, band_lower_right);
+                });
+            }
+        })
+        .unwrap();
+    }
+
+    write_image(&args[1], &pixels, resolution).expect("error writing png file");
 }
 
 /// Try to determine if `c` is in the Mandelbrot set, using at most `limit`
@@ -127,11 +152,20 @@ fn render(
 
 /// Write the buffer `pixels`, whose dimensions are given by `resolution`, to the
 /// file named `filename`.
-fn write_image(filename: &str, pixels: &[u8], resolution: (usize, usize)) -> Result<(), std::io::Error> {
+fn write_image(
+    filename: &str,
+    pixels: &[u8],
+    resolution: (usize, usize),
+) -> Result<(), std::io::Error> {
     let out = File::create(filename)?;
 
     let encoder = PNGEncoder::new(out);
-    encoder.encode(pixels, resolution.0 as u32, resolution.1 as u32, ColorType::Gray(8))?;
+    encoder.encode(
+        pixels,
+        resolution.0 as u32,
+        resolution.1 as u32,
+        ColorType::Gray(8),
+    )?;
 
     Ok(())
 }
