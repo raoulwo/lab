@@ -20,8 +20,9 @@ defmodule InfoSys.Wolfram do
     |> build_results()
   end
 
+  @http Application.get_env(:info_sys, :wolfram)[:http_client] || :httpc
   defp fetch_xml(query) do
-    {:ok, {_, _, body}} = :httpc.request(String.to_charlist(url(query)))
+    {:ok, {_, _, body}} = @http.request(String.to_charlist(url(query)))
     body
   end
 
