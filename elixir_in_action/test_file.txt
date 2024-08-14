@@ -1,0 +1,10 @@
+foo
+bar
+Raoul
+Wograndl
+I
+love
+Elixir
+:)
+Streams are lazy.
+Enums aren't.
