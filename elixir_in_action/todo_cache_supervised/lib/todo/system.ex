@@ -9,6 +9,7 @@ defmodule Todo.System do
   def init(_) do
     Supervisor.init(
       [
+        Todo.Metrics,
         # The `Todo.ProcessRegistry` needs to be started before `Todo.Database`
         Todo.ProcessRegistry,
         Todo.Database,

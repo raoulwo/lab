@@ -1,6 +1,8 @@
 defmodule Todo.Server do
   use GenServer, restart: :temporary
 
+  @expiry_idle_timeout :timer.seconds(10)
+
   def start_link(name) do
     GenServer.start_link(__MODULE__, name, name: via_tuple(name))
   end
@@ -31,6 +33,7 @@ defmodule Todo.Server do
     #
     # 1. init/1 which blocks the client until it returns
     # 2. handle_continue/2 which is performed after GenServer.start/3
+    IO.puts("starting the todo server for #{name}")
     {:ok, {name, nil}, {:continue, :init}}
   end
 
@@ -39,12 +42,12 @@ defmodule Todo.Server do
     # Since this operation might take long we extract it into this callback
     # so that the clients aren't blocked
     todo = Todo.Database.get(name) || Todo.List.new()
-    {:noreply, {name, todo}}
+    {:noreply, {name, todo}, @expiry_idle_timeout}
   end
 
   @impl GenServer
   def handle_call({:entries, date}, _, {_name, curr_todo}) do
-    {:reply, Todo.List.entries(curr_todo, date), curr_todo}
+    {:reply, Todo.List.entries(curr_todo, date), curr_todo, @expiry_idle_timeout}
   end
 
   # The asynchronous Todo.Database.store/2 requests can lead to a bottleneck
@@ -54,20 +57,26 @@ defmodule Todo.Server do
   def handle_cast({:add_entry, new_entry}, {name, curr_todo}) do
     new_todo = Todo.List.add_entry(curr_todo, new_entry)
     Todo.Database.store(name, new_todo)
-    {:noreply, {name, new_todo}}
+    {:noreply, {name, new_todo}, @expiry_idle_timeout}
   end
 
   @impl GenServer
   def handle_cast({:update_entry, entry_id, updater_fun}, {name, curr_todo}) do
     new_todo = Todo.List.update_entry(curr_todo, entry_id, updater_fun)
     Todo.Database.store(name, new_todo)
-    {:noreply, {name, new_todo}}
+    {:noreply, {name, new_todo}, @expiry_idle_timeout}
   end
 
   @impl GenServer
   def handle_cast({:delete_entry, entry_id}, {name, curr_todo}) do
     new_todo = Todo.List.delete_entry(curr_todo, entry_id)
     Todo.Database.store(name, new_todo)
-    {:noreply, {name, new_todo}}
+    {:noreply, {name, new_todo}, @expiry_idle_timeout}
+  end
+
+  @impl GenServer
+  def handle_info(:timeout, {name, todo}) do
+    IO.puts("stopping the todo server for #{name}")
+    {:stop, :normal, {name, todo}}
   end
 end
