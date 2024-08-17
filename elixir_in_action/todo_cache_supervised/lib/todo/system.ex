@@ -13,7 +13,8 @@ defmodule Todo.System do
         # The `Todo.ProcessRegistry` needs to be started before `Todo.Database`
         Todo.ProcessRegistry,
         Todo.Database,
-        Todo.Cache
+        Todo.Cache,
+        Todo.Web
       ],
       strategy: :one_for_one
     )
