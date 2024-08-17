@@ -4,7 +4,7 @@ defmodule LoadTest do
   # Start from command line with:
   #   elixir --erl "+P 2000000" -S mix run -e LoadTest.run
   def run do
-    {:ok, _} = Todo.Cache.start_link(nil)
+    {:ok, _} = Todo.Cache.start_link()
 
     {put_time, _} =
       :timer.tc(fn ->
