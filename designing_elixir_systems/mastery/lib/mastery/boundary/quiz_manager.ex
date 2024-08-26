@@ -6,6 +6,10 @@ defmodule Mastery.Boundary.QuizManager do
     GenServer.call(manager, {:build_quiz, quiz_fields})
   end
 
+  def remove_quiz(manager \\ __MODULE__, quiz_title) do
+    GenServer.call(manager, {:remove_quiz, quiz_title})
+  end
+
   def add_template(manager \\ __MODULE__, quiz_title, template_fields) do
     GenServer.call(manager, {:add_template, quiz_title, template_fields})
   end
@@ -29,6 +33,12 @@ defmodule Mastery.Boundary.QuizManager do
   def handle_call({:build_quiz, quiz_fields}, _from, quizzes) do
     quiz = Quiz.new(quiz_fields)
     new_quizzes = Map.put(quizzes, quiz.title, quiz)
+    {:reply, :ok, new_quizzes}
+  end
+
+  @impl GenServer
+  def handle_call({:remove_quiz, quiz_title}, _from, quizzes) do
+    new_quizzes = Map.delete(quizzes, quiz_title)
     {:reply, :ok, new_quizzes}
   end
 
