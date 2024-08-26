@@ -14,6 +14,10 @@ defmodule Mastery.Boundary.QuizManager do
     GenServer.call(manager, {:lookup_quiz_by_title, quiz_title})
   end
 
+  def start_link(options \\ []) do
+    GenServer.start_link(__MODULE__, %{}, options)
+  end
+
   @impl GenServer
   def init(quizzes) when is_map(quizzes) do
     {:ok, quizzes}
