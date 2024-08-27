@@ -38,11 +38,10 @@ defmodule Playground do
   end
 
   def play do
-    q = 
-      "albums"
-      |> by_artist("Miles Davis")
-      |> with_tracks_longer_than(720)
-      |> title_only()
+    q = from a in Album,
+      join: t in assoc(a, :tracks),
+      where: t.title == "Freddie Freeloader",
+      preload: [tracks: t]
 
     Repo.all(q)
   end
