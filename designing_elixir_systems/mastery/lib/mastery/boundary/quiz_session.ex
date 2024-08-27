@@ -72,7 +72,7 @@ defmodule Mastery.Boundary.QuizSession do
   @impl GenServer
   def handle_call({:answer_question, answer, persistence_fn}, _from, {quiz, email}) do
     persistence_fn = persistence_fn || fn r, f -> f.(r) end
-    response = Respons.new(quiz, email, answer)
+    response = Response.new(quiz, email, answer)
 
     persistence_fn.(response, fn r ->
       quiz
