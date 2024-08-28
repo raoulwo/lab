@@ -38,31 +38,24 @@ defmodule Playground do
   end
 
   def play do
-    q = from a in Album,
-      join: t in assoc(a, :tracks),
-      where: t.title == "Freddie Freeloader",
-      preload: [tracks: t]
 
-    Repo.all(q)
+    portrait = Repo.get_by(Album, title: "Portrait In Jazz")
+    kind_of_blue = Repo.get_by(Album, title: "Kind Of Blue")
+    params = %{ "albums" =>
+      [
+        %{"title" => "Explorations"},
+        %{"title" => "Portrait In Jazz (Remastered)", "id" => portrait.id},
+        %{"title" => "Kind Of Blue", "id" => kind_of_blue.id}
+      ]
+    }
+
+    artist = Repo.get_by(Artist, name: "Bill Evans") |> Repo.preload(:albums)
+    {:ok, artist} = artist
+      |> cast(params, [])
+      |> cast_assoc(:albums)
+      |> Repo.update()
+    Enum.map(artist.albums, &{&1.id, &1.title})
   end
-
-  def by_artist(query, artist_name) do
-    from q in query,
-      join: ar in "artists", on: q.artist_id == ar.id,
-      where: ar.name == ^artist_name
-  end
-
-  def with_tracks_longer_than(query, duration) do
-    from a in query,
-      join: t in "tracks", on: t.album_id == a.id,
-      where: t.duration > ^duration,
-      distinct: true
-  end
-
-  def title_only(query) do
-    from a in query, select: a.title
-  end
-
 end
 
 # add your test code to Playground.play above - this will execute it
