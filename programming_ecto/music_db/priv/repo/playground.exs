@@ -38,24 +38,19 @@ defmodule Playground do
   end
 
   def play do
-
-    portrait = Repo.get_by(Album, title: "Portrait In Jazz")
-    kind_of_blue = Repo.get_by(Album, title: "Kind Of Blue")
-    params = %{ "albums" =>
-      [
-        %{"title" => "Explorations"},
-        %{"title" => "Portrait In Jazz (Remastered)", "id" => portrait.id},
-        %{"title" => "Kind Of Blue", "id" => kind_of_blue.id}
-      ]
-    }
-
-    artist = Repo.get_by(Artist, name: "Bill Evans") |> Repo.preload(:albums)
-    {:ok, artist} = artist
-      |> cast(params, [])
-      |> cast_assoc(:albums)
-      |> Repo.update()
-    Enum.map(artist.albums, &{&1.id, &1.title})
+    artist = Repo.get_by(Artist, name: "Johnny Hodges")
+    artist_changeset = Artist.changeset(artist, %{name: "John Cornelius Hodges"})
+    genre_changeset =
+      %Genre{}
+        |> Ecto.Changeset.cast(%{name: "jazz"}, [:name])
+        |> Ecto.Changeset.unique_constraint(:name)
+    multi =
+      Multi.new()
+      |> Multi.update(:artist, artist_changeset)
+      |> Multi.insert(:bad_genre, genre_changeset)
+    Repo.transaction(multi)
   end
+
 end
 
 # add your test code to Playground.play above - this will execute it
