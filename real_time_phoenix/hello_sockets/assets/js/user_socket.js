@@ -32,4 +32,12 @@ channel.on("send_ping", (payload) => {
     .receive("ok", (res) => console.log("ping:", res.ping))
 })
 
+const authSocket = new Socket("/auth_socket", {
+  params: { token: window.authToken }
+})
+
+authSocket.onOpen(() => console.log('authSocket connected'))
+authSocket.connect()
+
+
 export default socket
