@@ -32,6 +32,14 @@ channel.on("send_ping", (payload) => {
     .receive("ok", (res) => console.log("ping:", res.ping))
 })
 
+const dupeChannel = socket.channel("dupe")
+
+dupeChannel.on("number", (payload) => {
+  console.log("new number received", payload)
+});
+
+dupeChannel.join()
+
 const authSocket = new Socket("/auth_socket", {
   params: { token: window.authToken }
 })
@@ -39,5 +47,12 @@ const authSocket = new Socket("/auth_socket", {
 authSocket.onOpen(() => console.log('authSocket connected'))
 authSocket.connect()
 
+const recurringChannel = authSocket.channel("recurring")
+
+recurringChannel.on("new_token", (payload) => {
+  console.log("received new auth token", payload);
+})
+
+recurringChannel.join()
 
 export default socket

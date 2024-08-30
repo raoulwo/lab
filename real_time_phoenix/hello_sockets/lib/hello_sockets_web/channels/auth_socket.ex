@@ -3,8 +3,8 @@ defmodule HelloSocketsWeb.AuthSocket do
   require Logger
 
   channel "ping", HelloSocketsWeb.PingChannel
-  channel "tracked", HelloSocketsWeb.TrackedChannel
   channel "user:*", HelloSocketsWeb.AuthChannel
+  channel "recurring", HelloSocketsWeb.RecurringChannel
 
   @impl Phoenix.Socket
   def connect(%{"token" => token}, socket) do
