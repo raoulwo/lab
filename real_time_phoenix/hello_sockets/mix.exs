@@ -54,7 +54,10 @@ defmodule HelloSockets.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+      {:statix, github: "cabify/statix", ref: "ed9b6b6a70b7619d02c6a2c8abaa440b4d07ef31"},
+      {:statsd_logger, "~> 1.1", only: [:dev, :test]},
+      {:gen_stage, "~> 1.2"}
     ]
   end
 
