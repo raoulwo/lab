@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -u
+
+input_dir="tests/inputs"
+output_dir="tests/expected"
+
+[[ ! -d "$output_dir" ]] && mkdir -p "$output_dir"
+
+for file in "$input_dir"/*.txt; do
+  basename=$(basename "$file")
+  head "$file" >"${output_dir}/${basename}.out"
+  head -n 2 "$file" >"${output_dir}/${basename}.n2.out"
+  head -n 4 "$file" >"${output_dir}/${basename}.n4.out"
+  head -c 1 "$file" >"${output_dir}/${basename}.c1.out"
+  head -c 2 "$file" >"${output_dir}/${basename}.c2.out"
+  head -c 4 "$file" >"${output_dir}/${basename}.c4.out"
+done
+
+all="$input_dir/empty.txt $input_dir/one.txt $input_dir/two.txt \
+  $input_dir/three.txt $input_dir/twelve.txt"
+
+head $all >"${output_dir}/all.out"
+head -n 2 $all >"${output_dir}/all.n2.out"
+head -n 4 $all >"${output_dir}/all.n4.out"
+head -c 1 $all >"${output_dir}/all.c1.out"
+head -c 2 $all >"${output_dir}/all.c2.out"
+head -c 4 $all >"${output_dir}/all.c4.out"

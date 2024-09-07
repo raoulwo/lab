@@ -1,0 +1,16 @@
+[package]
+name = "headr"
+authors = ["Raoul Christian Wograndl <wograndl.raoul@gmail.com>"]
+version = "0.1.0"
+edition = "2021"
+description = "Rust head"
+
+[dependencies]
+anyhow = "1.0"
+clap = { version = "4.5", features = ["cargo", "derive"] }
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "3.1"
+pretty_assertions = "1.4"
+rand = "0.8"
