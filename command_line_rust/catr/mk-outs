@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+set -u
+
+input_dir="tests/inputs"
+output_dir="tests/expected"
+
+[[ ! -d "$output_dir" ]] && mkdir -p "$output_dir"
+
+empty="$input_dir/empty.txt"
+fox="$input_dir/fox.txt"
+spiders="$input_dir/spiders.txt"
+bustle="$input_dir/the-bustle.txt"
+all="$empty $fox $spiders $bustle"
+
+for file in $all; do
+  basename=$(basename "$file")
+  cat "$file" >"${output_dir}/${basename}.out"
+  cat -n "$file" >"${output_dir}/${basename}.n.out"
+  cat -b "$file" >"${output_dir}/${basename}.b.out"
+done
+
+cat $all >"${output_dir}/all.out"
+cat -n $all >"${output_dir}/all.n.out"
+cat -b $all >"${output_dir}/all.b.out"
+
+basename=$(basename "$bustle")
+cat <"$bustle" >"${output_dir}/${basename}.stdin.out"
+cat -n <"$bustle" >"${output_dir}/${basename}.n.stdin.out"
+cat -b <"$bustle" >"${output_dir}/${basename}.b.stdin.out"
