@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+set -u
+
+input_dir="tests/inputs"
+output_dir="tests/expected"
+files="$input_dir/empty.txt $input_dir/fox.txt $input_dir/atlamal.txt"
+
+[[ ! -d "$output_dir" ]] && mkdir -p "$output_dir"
+
+for file in $files; do
+  basename=$(basename "$file")
+  wc "$file" >"$output_dir/$basename.out"
+  wc -l "$file" >"$output_dir/$basename.l.out"
+  wc -w "$file" >"$output_dir/$basename.w.out"
+  wc -c "$file" >"$output_dir/$basename.c.out"
+  wc -m "$file" >"$output_dir/$basename.m.out"
+  wc -lwm "$file" >"$output_dir/$basename.lwm.out"
+  wc -wc "$file" >"$output_dir/$basename.wc.out"
+  wc -wm "$file" >"$output_dir/$basename.wm.out"
+  wc -wl "$file" >"$output_dir/$basename.wl.out"
+  wc -cl "$file" >"$output_dir/$basename.cl.out"
+  wc -ml "$file" >"$output_dir/$basename.ml.out"
+done
+
+wc <"$input_dir/atlamal.txt" >"$output_dir/atlamal.txt.stdin.out"
+
+wc $files >"$output_dir/all.out"
+wc -l $files >"$output_dir/all.l.out"
+wc -w $files >"$output_dir/all.w.out"
+wc -c $files >"$output_dir/all.c.out"
+wc -m $files >"$output_dir/all.m.out"
+wc -lwm $files >"$output_dir/all.lwm.out"
+wc -wc $files >"$output_dir/all.wc.out"
+wc -wm $files >"$output_dir/all.wm.out"
+wc -wl $files >"$output_dir/all.wl.out"
+wc -cl $files >"$output_dir/all.cl.out"
+wc -ml $files >"$output_dir/all.ml.out"
